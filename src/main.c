@@ -35,7 +35,9 @@
 #include "aws_dev_mode_key_provisioning.h"
 
 /* AWS System includes. */
+#ifdef CONFIG_IDF_TARGET_ESP32
 #include "bt_hal_manager.h"
+#endif /* CONFIG_IDF_TARGET_ESP32 */
 #include "iot_system_init.h"
 #include "iot_logging_task.h"
 
@@ -45,6 +47,7 @@
 #include "FreeRTOS_Sockets.h"
 #endif
 
+#ifdef CONFIG_IDF_TARGET_ESP32
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_interface.h"
@@ -55,13 +58,15 @@
     #include "esp_gap_ble_api.h"
     #include "esp_bt_main.h"
 #endif
+#endif /* CONFIG_IDF_TARGET_ESP32 */
 
 #include "driver/uart.h"
 #include "aws_application_version.h"
-#include "tcpip_adapter.h"
+#include "esp_netif.h"
 
 #include "iot_network_manager_private.h"
 
+#ifdef CONFIG_IDF_TARGET_ESP32
 #if BLE_ENABLED
     #include "bt_hal_manager_adapter_ble.h"
     #include "bt_hal_manager.h"
@@ -72,6 +77,8 @@
     #include "iot_ble_wifi_provisioning.h"
     #include "iot_ble_numericComparison.h"
 #endif
+#endif /* CONFIG_IDF_TARGET_ESP32 */
+
 
 /* Demonstrate use of component foo. */
 #include <foo.h>
@@ -93,6 +100,7 @@ QueueHandle_t spp_uart_queue = NULL;
  */
 static void prvMiscInitialization( void );
 
+#ifdef CONFIG_IDF_TARGET_ESP32
 #if BLE_ENABLED
 /* Initializes bluetooth */
     static esp_err_t prvBLEStackInit( void );
@@ -100,6 +108,7 @@ static void prvMiscInitialization( void );
     esp_err_t xBLEStackTeardown( void );
     static void spp_uart_init( void );
 #endif
+#endif /* CONFIG_IDF_TARGET_ESP32 */
 
 /*-----------------------------------------------------------*/
 
@@ -122,6 +131,7 @@ int app_main( void )
          * by production ready key provisioning mechanism. */
         vDevModeKeyProvisioning();
 
+#ifdef CONFIG_IDF_TARGET_ESP32
         #if BLE_ENABLED
             /* Initialize BLE. */
             ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
@@ -138,6 +148,7 @@ int app_main( void )
             ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
             ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_BLE ) );
         #endif /* if BLE_ENABLED */
+#endif /* CONFIG_IDF_TARGET_ESP32 */
         /* Run all demos. */
         DEMO_RUNNER_RunDemos();
     }
@@ -165,10 +176,12 @@ static void prvMiscInitialization( void )
 
     ESP_ERROR_CHECK( ret );
 
+#ifdef CONFIG_IDF_TARGET_ESP32
     #if BLE_ENABLED
         NumericComparisonInit();
         spp_uart_init();
     #endif
+#endif /* CONFIG_IDF_TARGET_ESP32 */
 
     /* Create tasks that are not dependent on the WiFi being initialized. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
@@ -177,7 +190,7 @@ static void prvMiscInitialization( void )
 
 #if AFR_ESP_LWIP
     configPRINTF( ("Initializing lwIP TCP stack\r\n") );
-    tcpip_adapter_init();
+    esp_netif_init();
 #else
     configPRINTF( ("Initializing FreeRTOS TCP stack\r\n") );
     vApplicationIPInit();
@@ -186,6 +199,7 @@ static void prvMiscInitialization( void )
 
 /*-----------------------------------------------------------*/
 
+#ifdef CONFIG_IDF_TARGET_ESP32
 #if BLE_ENABLED
 
     #if CONFIG_NIMBLE_ENABLED == 1
@@ -317,6 +331,7 @@ static void prvMiscInitialization( void )
         return xReturnMessage;
     }
 #endif /* if BLE_ENABLED */
+#endif /* CONFIG_IDF_TARGET_ESP32 */
 
 /*-----------------------------------------------------------*/
 

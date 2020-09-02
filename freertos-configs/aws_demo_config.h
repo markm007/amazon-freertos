@@ -52,7 +52,11 @@
 
 #if defined( CONFIG_MQTT_DEMO_ENABLED )
     #undef democonfigNETWORK_TYPES
+#ifdef CONFIG_IDF_TARGET_ESP32
     #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
+#elif CONFIG_IDF_TARGET_ESP32S2
+    #define democonfigNETWORK_TYPES    ( AWSIOT_NETWORK_TYPE_WIFI )
+#endif
 #endif
 
 #if defined( CONFIG_OTA_UPDATE_DEMO_ENABLED )
